@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GroPlan — 사업계획서 작성</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0E3A27; }
+  ::selection { background: #4ADE80; color: #0E3A27; }
+  #chat::-webkit-scrollbar, #sidebar::-webkit-scrollbar, #rail::-webkit-scrollbar { width: 8px; }
+  #chat::-webkit-scrollbar-thumb { background: rgba(14,58,39,0.18); border-radius: 8px; }
+  textarea:focus { outline: none; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+</style>
+<script>
+(function(){
+  var esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+
+  var STEPS = [
+    { no:1, title:'문제 발견', en:'Problem',
+      q:'먼저, 어떤 <b>문제</b>를 <b>누구</b>를 위해 해결하려는지 떠오르는 대로 적어주세요. 문장이 거칠어도 괜찮아요.',
+      ph:'예: 동네 예술가는 작품 팔 곳이 없고, 사람들은 온라인으로 그림 사길 망설인다',
+      sample:'동네 예술가들이 작품을 팔 데가 마땅치 않고, 소비자는 실물을 못 봐서 온라인으로 그림 사기를 망설인다',
+      draft:function(t){ return '해결하려는 핵심 문제를 이렇게 정리했어요.<br><br>"<b>'+t+'</b>"<br><br>이 문제는 ① 공급자(지역 예술가)의 <b>판로 부족</b>과 ② 수요자의 <b>구매 확신 부족</b>이라는 양면 페인포인트로 구성됩니다. 두 집단 모두에게 반복적으로 발생하는 명확한 문제라, 해결 시 즉각적인 가치를 줍니다.'; },
+      grants:[ {m:94,d:'D-12',hot:true,name:'예비창업패키지 2026',org:'중기부 · 최대 1억원'}, {m:81,d:'D-45',name:'예술인 창업 지원사업',org:'예술경영지원센터 · 3천만원'} ] },
+    { no:2, title:'시장·고객 리서치', en:'Research',
+      q:'이제 <b>타깃 고객</b>과 <b>시장 규모</b>를 짚어볼게요. 주 고객은 누구이고, 시장은 어느 정도라고 생각하세요?',
+      ph:'예: 2030 1인가구 직장인, 인테리어 관심층. 국내 미술시장은 연 1조원 정도',
+      sample:'2030 1인가구 직장인, 집 꾸미기에 관심 많은 사람. 국내 미술시장은 연 1조원 규모로 알고 있다',
+      draft:function(t){ return '입력하신 내용 — "'+t+'" — 을 바탕으로 시장을 구조화했어요.<br><br>• <b>TAM</b> 국내 미술품·아트상품 시장 약 1조원<br>• <b>SAM</b> 온라인 구매·구독에 우호적인 2535 도시 거주자 약 1,800억원<br>• <b>SOM</b> 초기 3년 목표 점유 0.5% → 약 9억원<br><br>경쟁사 대비 <b>‘체험 후 구매’</b>라는 차별점이 시장 진입의 근거가 됩니다.'; },
+      grants:[ {m:88,d:'D-30',name:'초기창업패키지',org:'창업진흥원 · 최대 1억원'}, {m:76,d:'D-22',name:'청년창업사관학교',org:'중진공 · 최대 1억원'} ] },
+    { no:3, title:'솔루션 & MVP', en:'Solution',
+      q:'핵심 <b>솔루션</b>을 한 문장으로 정의하고, 가장 먼저 만들 <b>MVP</b>가 있다면 함께 적어주세요.',
+      ph:'예: 월 구독으로 큐레이터가 고른 그림을 집에서 체험·구매. MVP는 인스타 주문+수기 배송',
+      sample:'월 구독으로 큐레이터가 고른 그림을 집에서 체험하고 마음에 들면 구매. MVP는 인스타그램 주문과 수기 배송',
+      draft:function(t){ return '<b>핵심 가치 제안</b><br>"'+t+'"<br><br>사업계획서 문장으로 다듬으면: 지역 예술가의 작품을 <b>구독형 큐레이션</b>으로 매달 집에서 체험하고, 마음에 들면 구매하는 서비스로 <b>온라인 미술품 구매의 거부감</b>을 해소합니다.<br><br><b>MVP 범위</b> 인스타그램 채널 기반 사전 주문 → 큐레이션 5점 → 수기 배송으로 수요를 빠르게 검증합니다.'; },
+      grants:[ {m:90,d:'D-12',hot:true,name:'예비창업패키지 2026',org:'중기부 · 최대 1억원'}, {m:72,d:'D-60',name:'콘텐츠 스타트업 육성',org:'문체부 · 최대 5천만원'} ] },
+    { no:4, title:'비즈니스 모델', en:'Business Model',
+      q:'어떻게 <b>수익</b>을 낼 계획인가요? 가격이나 과금 방식이 떠오르면 적어주세요.',
+      ph:'예: 월 구독료 3만원, 작품 구매 시 작가와 수수료 30% 셰어',
+      sample:'월 구독료 3만원, 작품 구매가 일어나면 작가와 30% 수수료를 셰어',
+      draft:function(t){ return '<b>수익 모델</b><br>"'+t+'"<br><br>• 1차 — <b>월 구독료</b>(리커링): 안정적 현금흐름<br>• 2차 — <b>판매 수수료</b>: 거래액 연동 업사이드<br>• 3차 — 작가 프로모션·전시 제휴: 확장 수익<br><br>구독으로 LTV를 확보하고 판매 수수료로 객단가를 끌어올리는 이중 구조입니다.'; },
+      grants:[ {m:84,d:'D-30',name:'초기창업패키지',org:'창업진흥원 · 최대 1억원'}, {m:69,d:'D-18',name:'로컬크리에이터 지원',org:'중기부 · 최대 4천만원'} ] },
+    { no:5, title:'실행 로드맵', en:'Execution',
+      q:'<b>실행 계획</b>을 적어볼게요. 앞으로 6~12개월 동안 꼭 해야 할 일이 있다면요?',
+      ph:'예: 3개월 내 구독 100명, 6개월 내 자사 앱 출시, 작가 50명 확보',
+      sample:'3개월 안에 MVP로 구독 100명 확보, 6개월 내 자사 앱 출시, 1년 내 작가 50명 확보',
+      draft:function(t){ return '<b>실행 로드맵</b><br>(입력: "'+t+'")<br><br>• <b>0–3개월</b> MVP 출시, 구독 100명·작가 20명 확보<br>• <b>3–6개월</b> 자사 앱 출시, 구독 500명, 재구매율 측정<br>• <b>6–12개월</b> 작가 50명, 월 거래액 5천만원, 후속투자 준비<br><br>각 구간의 핵심 지표(구독자·재구매율·거래액)를 마일스톤으로 제시합니다.'; },
+      grants:[ {m:79,d:'D-45',name:'창업도약패키지',org:'창업진흥원 · 최대 3억원'}, {m:66,d:'D-25',name:'지역기반 로컬크리에이터',org:'지자체 · 최대 5천만원'} ] },
+    { no:6, title:'재무 계획', en:'Financials',
+      q:'마지막 입력이에요. 필요한 <b>자금</b>이나 예상 <b>매출</b>이 있으면 적어주세요. 숫자는 대략이어도 괜찮아요.',
+      ph:'예: 초기 자금 5천만원 필요, 1년차 매출 1억 목표',
+      sample:'초기 자금 5천만원 정도 필요하고, 1년차에 매출 1억원을 목표로 한다',
+      draft:function(t){ return '<b>재무 계획</b><br>(입력: "'+t+'")<br><br>• <b>소요 자금</b> 5천만원 — 개발 40% · 마케팅 35% · 운영 25%<br>• <b>추정 매출</b> 1년차 1억 → 2년차 4억 → 3년차 12억<br>• <b>손익분기</b> 18개월차 예상<br><br>예비창업패키지 1억원을 확보하면 자기자본 부담 없이 약 18개월 런웨이가 확보됩니다.'; },
+      grants:[ {m:94,d:'D-12',hot:true,name:'예비창업패키지 2026',org:'중기부 · 최대 1억원'}, {m:71,d:'D-40',name:'창업기업 정책자금 융자',org:'중진공 · 최대 2억원'} ] },
+    { no:7, title:'피치덱 완성', en:'Pitch Deck', final:true,
+      grants:[ {m:94,d:'D-12',hot:true,name:'예비창업패키지 2026',org:'중기부 · 최대 1억원'}, {m:88,d:'D-30',name:'초기창업패키지',org:'창업진흥원 · 최대 1억원'} ] }
+  ];
+
+  var state = { current:0, max:0, answers:{}, drafts:{}, view:'compose', preview:'', qna:false };
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---------- partials ----------
+  function aiBubble(html, draft){
+    var label = draft ? 'GroPlan AI · <span style="color:#178A4E;">✦ 초안 생성</span>' : 'GroPlan AI';
+    return '<div style="align-self:flex-start; max-width:90%; animation:pop .35s ease;">'
+      + '<div style="font-size:11.5px; color:#8A938C; margin-bottom:6px; font-weight:600;">'+label+'</div>'
+      + '<div style="background:#fff; border:1px solid #E0EAE2; border-radius:4px 16px 16px 16px; padding:15px 18px; font-size:14.5px; line-height:1.72; color:#2C362F; box-shadow:0 10px 26px -20px rgba(14,58,39,0.4);">'+html+'</div></div>';
+  }
+  function userBubble(text){
+    return '<div style="align-self:flex-end; max-width:88%; animation:pop .35s ease;">'
+      + '<div style="background:#178A4E; color:#fff; border-radius:16px 4px 16px 16px; padding:13px 17px; font-size:14.5px; line-height:1.65;">'+text+'</div></div>';
+  }
+  function btn(label, fn, kind){
+    if(kind==='primary') return '<button onclick="'+fn+'" style="cursor:pointer; font-family:inherit; font-size:13.5px; font-weight:600; color:#fff; background:#178A4E; border:none; padding:11px 18px; border-radius:10px;">'+label+'</button>';
+    if(kind==='accent') return '<button onclick="'+fn+'" style="cursor:pointer; font-family:inherit; font-size:13.5px; font-weight:700; color:#0E3A27; background:#4ADE80; border:none; padding:11px 18px; border-radius:10px;">'+label+'</button>';
+    return '<button onclick="'+fn+'" style="cursor:pointer; font-family:inherit; font-size:13.5px; font-weight:600; color:#2C362F; background:#fff; border:1px solid #CBD3CC; padding:11px 18px; border-radius:10px;">'+label+'</button>';
+  }
+  function grantCard(g){
+    return '<div style="background:#fff; border:1px solid '+(g.hot?'#FFD9C2':'#E0EAE2')+'; border-radius:13px; padding:14px 15px; margin-bottom:10px;">'
+      + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+      + '<span style="font-size:10.5px; font-weight:700; color:#178A4E; background:#E7F2EB; padding:3px 9px; border-radius:100px;">매칭 '+g.m+'%</span>'
+      + '<span style="font-size:10.5px; font-weight:700; color:'+(g.hot?'#FF8A4C':'#178A4E')+';">'+g.d+'</span></div>'
+      + '<div style="font-size:13.5px; font-weight:700; color:#16201B; line-height:1.35;">'+g.name+'</div>'
+      + '<div style="font-size:11.5px; color:#6B756E; margin-top:4px;">'+g.org+'</div></div>';
+  }
+
+  // ---------- renderers ----------
+  function renderSidebar(){
+    var html = '<div style="font-size:11px; font-weight:600; letter-spacing:0.08em; color:#6E9080; margin-bottom:12px;">ROADMAP</div>';
+    var done = Object.keys(state.drafts).length;
+    var pct = Math.round(done/6*100); if(pct>100) pct=100;
+    html += '<div style="font-size:11.5px; color:#9DB4A4; margin-bottom:7px;">진행률 '+pct+'%</div>';
+    html += '<div style="height:6px; background:rgba(255,255,255,0.12); border-radius:100px; overflow:hidden; margin-bottom:20px;"><div style="width:'+pct+'%; height:100%; background:#4ADE80; border-radius:100px; transition:width .4s ease;"></div></div>';
+    for(var i=0;i<STEPS.length;i++){
+      var s=STEPS[i];
+      var isDone = state.drafts[i]!=null || (s.final && done>=6);
+      var isActive = i===state.current;
+      var locked = i>state.max;
+      var bg = isActive ? 'rgba(74,222,128,0.14)' : 'transparent';
+      var dotBg = isActive ? '#4ADE80' : (isDone ? 'rgba(74,222,128,0.28)' : 'rgba(255,255,255,0.1)');
+      var dotCol = isActive ? '#0E3A27' : (isDone ? '#C2D6C9' : '#7E9588');
+      var mark = (isDone && !isActive) ? '✓' : s.no;
+      var txtCol = isActive ? '#EAF3EC' : (isDone ? '#9DB4A4' : '#7E9588');
+      var wt = isActive ? 700 : 500;
+      var cursor = locked ? 'default' : 'pointer';
+      html += '<div onclick="__gp.enter('+i+')" style="display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; margin-bottom:3px; background:'+bg+'; cursor:'+cursor+';">'
+        + '<span style="width:22px; height:22px; border-radius:50%; background:'+dotBg+'; color:'+dotCol+'; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:\'Bricolage Grotesque\',sans-serif;">'+mark+'</span>'
+        + '<span style="font-size:13px; font-weight:'+wt+'; color:'+txtCol+'; white-space:nowrap;">'+s.title+'</span>'
+        + (locked ? '<span style="margin-left:auto; font-size:11px; color:#5A7567;">🔒</span>' : '')
+        + '</div>';
+    }
+    html += '<a href="index.html" style="display:inline-flex; align-items:center; gap:6px; margin-top:18px; font-size:12.5px; color:#7E9588; text-decoration:none;">← 랜딩으로</a>';
+    $('sidebar').innerHTML = html;
+  }
+
+  function renderRail(){
+    var s = STEPS[state.current];
+    var html = '<div style="font-size:11.5px; font-weight:700; color:#6B756E; letter-spacing:0.04em; margin-bottom:14px;">🎯 이 단계 추천 지원사업</div>';
+    for(var i=0;i<s.grants.length;i++){ html += grantCard(s.grants[i]); }
+    html += '<button onclick="__gp.toast(\'데모에서는 신청 연결이 비활성화돼 있어요.\')" style="width:100%; cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600; color:#178A4E; background:#E7F2EB; border:none; padding:11px; border-radius:10px; margin-top:2px;">맞춤 공고 더 보기 →</button>';
+    html += '<div style="font-size:12px; color:#8A938C; text-align:center; margin-top:16px; line-height:1.5;">계획서가 채워질수록<br>추천이 정교해져요</div>';
+    $('rail').innerHTML = html;
+  }
+
+  function composerHTML(s){
+    var val = state.answers[state.current] ? esc(state.answers[state.current]) : '';
+    return '<div style="margin-top:6px; background:#fff; border:1px solid #E0EAE2; border-radius:16px; padding:14px; box-shadow:0 10px 30px -22px rgba(14,58,39,0.5);">'
+      + '<textarea id="answer" placeholder="'+s.ph+'" style="width:100%; min-height:84px; resize:vertical; border:none; font-family:inherit; font-size:14.5px; line-height:1.6; color:#16201B; background:transparent; padding:4px;">'+val+'</textarea>'
+      + '<div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">'
+      + btn('예시로 채우기', "__gp.fillSample()", 'ghost')
+      + btn('✦ AI 초안 생성', "__gp.generate()", 'primary')
+      + '</div></div>';
+  }
+
+  function finalHTML(){
+    var labels = ['문제 정의','시장·고객','솔루션 & MVP','비즈니스 모델','실행 로드맵','재무 계획'];
+    var html = '<div style="font-size:12.5px; color:#178A4E; font-weight:700; letter-spacing:0.04em;">STEP 7 · 피치덱 완성</div>';
+    html += '<div style="background:linear-gradient(135deg,#178A4E,#0E3A27); color:#fff; border-radius:18px; padding:26px 26px; margin:12px 0 18px; animation:pop .4s ease;">'
+      + '<div style="font-size:13px; font-weight:600; color:#9FE6BB; letter-spacing:0.04em;">🎉 완성</div>'
+      + '<div style="font-size:24px; font-weight:800; letter-spacing:-0.02em; margin-top:6px;">사업계획서 초안이 완성됐어요!</div>'
+      + '<div style="font-size:14.5px; color:#CFE8D7; margin-top:8px; line-height:1.6;">6단계 입력이 하나의 피치덱으로 통합됐습니다. 아래에서 검토하고 내보내세요.</div></div>';
+    for(var i=0;i<6;i++){
+      var d = state.drafts[i] || '<span style="color:#9AA39C;">아직 작성되지 않았어요.</span>';
+      html += '<div style="background:#fff; border:1px solid #E0EAE2; border-radius:14px; padding:16px 18px; margin-bottom:12px;">'
+        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="font-family:\'Bricolage Grotesque\',sans-serif; font-size:12px; font-weight:700; color:#178A4E; background:#E7F2EB; width:22px; height:22px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center;">'+(i+1)+'</span>'
+        + '<span style="font-size:15px; font-weight:700; color:#16201B; white-space:nowrap;">'+labels[i]+'</span></div>'
+        + '<div style="font-size:13.5px; line-height:1.7; color:#3C463F;">'+d+'</div></div>';
+    }
+    html += '<div style="display:flex; gap:10px; margin:6px 0 4px;">'
+      + btn('📄 PDF로 내보내기', "__gp.toast('데모 버전이에요 — 실제 서비스에서 PDF·PPT로 내보낼 수 있어요.')", 'primary')
+      + btn('💬 예상 Q&A 8문항 생성', "__gp.toggleQna()", 'ghost') + '</div>';
+    if(state.qna){
+      var qna = [
+        ['수익이 구독에 집중되어 있는데, 작품 판매가 부진하면?','구독 자체가 안정적 현금흐름이며, 판매 수수료는 업사이드입니다. 구독 리텐션을 1차 KPI로 관리합니다.'],
+        ['기존 온라인 갤러리와의 차별점은?','‘체험 후 구매’ 모델로 구매 거부감을 직접 해소한다는 점이 핵심 차별점입니다.'],
+        ['작가 확보(공급) 전략은?','지역 예술 단체·예술경영지원센터 네트워크와 제휴해 초기 작가 풀을 확보합니다.']
+      ];
+      html += '<div style="margin-top:12px; animation:pop .35s ease;">';
+      for(var q=0;q<qna.length;q++){
+        html += '<div style="background:#FBFAF5; border:1px solid #E0EAE2; border-radius:12px; padding:13px 15px; margin-bottom:9px;">'
+          + '<div style="font-size:13.5px; font-weight:700; color:#16201B;">Q'+(q+1)+'. '+qna[q][0]+'</div>'
+          + '<div style="font-size:13px; color:#5C665F; margin-top:6px; line-height:1.6;">'+qna[q][1]+'</div></div>';
+      }
+      html += '<div style="font-size:12.5px; color:#8A938C; text-align:center;">+ 5문항 더 · 답변 연습 모드는 실제 서비스에서 제공돼요</div></div>';
+    }
+    return html;
+  }
+
+  function renderCenter(){
+    var i = state.current, s = STEPS[i];
+    var html = '';
+    if(s.final){ html = finalHTML(); $('chat').innerHTML = html; scrollChat(); return; }
+    html += '<div style="font-size:12.5px; color:#178A4E; font-weight:700; letter-spacing:0.04em;">STEP '+(i+1)+' · '+s.title+'</div>';
+    html += '<div style="height:8px;"></div>';
+    html += aiBubble(s.q);
+    if(state.answers[i]!=null && (state.view==='draft' || state.view==='saved')){
+      html += userBubble(esc(state.answers[i]));
+      var draftHtml = state.view==='draft' ? state.preview : state.drafts[i];
+      html += aiBubble(draftHtml, true);
+      html += '<div style="display:flex; gap:9px; flex-wrap:wrap; align-self:flex-start; margin-top:2px;">';
+      if(state.view==='draft'){
+        html += btn('저장하고 다음 단계 →', "__gp.save()", 'primary');
+        html += btn('↻ 다시 생성', "__gp.regenerate()", 'ghost');
+        html += btn('✏ 직접 고치기', "__gp.editStep()", 'ghost');
+      } else {
+        html += btn('✏ 이 단계 수정', "__gp.editStep()", 'ghost');
+        if(state.current < state.max) html += btn('다음 단계 →', "__gp.enter("+(state.current+1)+")", 'primary');
+      }
+      html += '</div>';
+    }
+    if(state.view==='compose'){ html += composerHTML(s); }
+    $('chat').innerHTML = html;
+    scrollChat();
+  }
+
+  function scrollChat(){ var c=$('chat'); if(c) c.scrollTop = c.scrollHeight; }
+
+  function renderHeader(){
+    var done = Object.keys(state.drafts).length;
+    var pct = Math.round(done/6*100); if(pct>100) pct=100;
+    $('hpct').textContent = pct + '%';
+    $('hbar').style.width = pct + '%';
+  }
+
+  function render(){ renderSidebar(); renderRail(); renderCenter(); renderHeader(); }
+
+  // ---------- actions ----------
+  window.__gp = {
+    enter:function(i){ if(i>state.max) return; state.current=i; state.view = (STEPS[i].final ? 'final' : (state.drafts[i]!=null ? 'saved' : 'compose')); render(); },
+    fillSample:function(){ var ta=$('answer'); if(ta){ ta.value = STEPS[state.current].sample; ta.focus(); } },
+    generate:function(){ var ta=$('answer'); var t=ta? ta.value.trim():''; if(!t){ if(ta){ ta.style.boxShadow='0 0 0 2px #FF8A4C'; setTimeout(function(){ta.style.boxShadow='none';},900);} return; } state.answers[state.current]=t; state.preview = STEPS[state.current].draft(esc(t)); state.view='draft'; render(); },
+    regenerate:function(){ var t=state.answers[state.current]||''; state.preview = STEPS[state.current].draft(esc(t)) + '<br><br><span style="color:#8A938C; font-size:12.5px;">↻ 같은 내용을 조금 다른 표현으로 다듬었어요.</span>'; render(); },
+    save:function(){ state.drafts[state.current]=state.preview; if(state.current+1>state.max) state.max=state.current+1; var n=state.current+1; if(n>6) n=6; state.current=n; state.view = STEPS[n].final ? 'final' : (state.drafts[n]!=null ? 'saved' : 'compose'); render(); },
+    editStep:function(){ state.view='compose'; render(); },
+    toggleQna:function(){ state.qna=!state.qna; render(); },
+    toast:function(msg){
+      var t=document.createElement('div');
+      t.textContent=msg;
+      t.style.cssText='position:fixed; left:50%; bottom:34px; transform:translateX(-50%); background:#16201B; color:#F7F4ED; font-family:Pretendard,sans-serif; font-size:13.5px; font-weight:500; padding:13px 20px; border-radius:100px; box-shadow:0 14px 30px -10px rgba(0,0,0,0.4); z-index:999; animation:toastIn .3s ease;';
+      document.body.appendChild(t);
+      setTimeout(function(){ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(function(){ t.remove(); },420); }, 2400);
+    }
+  };
+
+  function boot(){ render(); }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded', boot);
+})();
+</script>
+</head>
+<body>
+<div style="height:100vh; display:flex; flex-direction:column; font-family:'Pretendard',sans-serif; background:#F7F4ED; color:#16201B;">
+  <!-- header -->
+  <header style="display:flex; align-items:center; justify-content:space-between; padding:14px 26px; background:#fff; border-bottom:1px solid rgba(14,58,39,0.08); flex-shrink:0;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="width:30px; height:30px; border-radius:9px; background:#178A4E; display:inline-flex; align-items:center; justify-content:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 21V11M12 11C12 7 9 4 4 4C4 9 8 11 12 11ZM12 11C12 6.5 15 3 21 3.5C20.5 9 16 11 12 11Z" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span style="font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:18px;">GroPlan</span>
+      <span style="font-size:13px; color:#9AA39C; margin-left:6px; padding-left:14px; border-left:1px solid #E0E0D8;">동네 예술가 구독 큐레이션 · 사업계획서</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-size:12.5px; color:#6B756E; white-space:nowrap;">전체 진행률</span>
+      <div style="width:160px; height:7px; background:#E8E8E1; border-radius:100px; overflow:hidden;"><div id="hbar" style="width:0%; height:100%; background:#178A4E; border-radius:100px; transition:width .4s ease;"></div></div>
+      <span id="hpct" style="font-family:'Bricolage Grotesque',sans-serif; font-size:14px; font-weight:700; color:#178A4E; min-width:38px;">0%</span>
+    </div>
+  </header>
+  <!-- body -->
+  <div style="flex:1; display:grid; grid-template-columns:248px 1fr 288px; min-height:0;">
+    <aside id="sidebar" style="background:#0E3A27; color:#C2D6C9; padding:22px 16px; overflow-y:auto;"></aside>
+    <main id="chat" style="overflow-y:auto; padding:28px 32px; display:flex; flex-direction:column; gap:15px; background:#F7F4ED;"></main>
+    <aside id="rail" style="background:#FBFAF5; border-left:1px solid rgba(14,58,39,0.08); padding:22px 18px; overflow-y:auto;"></aside>
+  </div>
+</div>
+</body>
+</html>
